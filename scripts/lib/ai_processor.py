@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import anthropic
 from dotenv import load_dotenv
 
@@ -74,10 +75,11 @@ JSON으로만 반환:
         messages=[{"role": "user", "content": prompt}]
     )
     text = resp.content[0].text.strip()
-    if text.startswith("```"):
-        text = text.split("```")[1]
-        if text.startswith("json"):
-            text = text[4:]
+    if "```" in text:
+        # Extract content between first and last code fence
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', text)
+        if match:
+            text = match.group(1)
     return json.loads(text)
 
 
