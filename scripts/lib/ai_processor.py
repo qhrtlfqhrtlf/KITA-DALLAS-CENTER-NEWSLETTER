@@ -11,8 +11,13 @@ KITA_CONTEXT = """KITA Dallas Center는 한국무역협회 달라스 지부로,
 관심 키워드: 관세, 공급망, 한미무역, 반도체, 에너지, 환율, 텍사스, 중국."""
 
 
+_client = None
+
 def _get_client():
-    return anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    global _client
+    if _client is None:
+        _client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    return _client
 
 
 def rank_articles(articles: list[dict]) -> list[dict]:
@@ -47,7 +52,9 @@ def rank_articles(articles: list[dict]) -> list[dict]:
                 a["ranking_reason"] = item.get("reason", "")
                 result.append(a)
         return result
-    except Exception:
+    except Exception as e:
+        import sys
+        print(f"⚠️  순위 선정 파싱 실패 ({e}), 상위 5개로 대체합니다.", file=sys.stderr)
         return articles[:5]
 
 
