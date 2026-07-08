@@ -1,0 +1,37 @@
+# 이 저장소는 뉴스레터/SNS 자동화 코드(scripts/, tests/, docs/)만 버전관리합니다.
+# 업무 자료 폴더(001~999 등), 개인 문서, 대용량 바이너리, 비밀값은 의도적으로 제외합니다.
+
+# --- 비밀값 / 자격증명 ---
+scripts/.env
+.claude/
+*.url
+
+# --- 런타임 상태 / 캐시 ---
+scripts/state/*.json
+!scripts/state/.gitkeep
+scripts/lib/__pycache__/
+tests/__pycache__/
+**/__pycache__/
+.pytest_cache/
+*.pyc
+
+# --- Windows / 잡파일 ---
+desktop.ini
+Thumbs.db
+
+# --- 업무 자료 폴더 (대용량, 비코드) ---
+/001. 뉴스레터/
+/002. SNS/
+/004. 글무 26/
+/005. 인수인계/
+/900. 긴급/
+/999. 기타/
+/_claude-memory/
+
+# --- 개인/업무 문서 (레포 루트 잡파일) ---
+/*.html
+/*.png
+/*.docx
+/*.md
+!/CLAUDE.md
+/pdf_extract*.txt
