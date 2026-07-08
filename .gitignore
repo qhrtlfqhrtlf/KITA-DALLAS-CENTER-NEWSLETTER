@@ -3,7 +3,9 @@
 
 # --- 비밀값 / 자격증명 ---
 scripts/.env
-.claude/
+# .claude 는 스킬만 추적하고 나머지(자격증명 링크, 캐시, 로컬설정)는 제외
+.claude/*
+!.claude/skills/
 *.url
 
 # --- 런타임 상태 / 캐시 ---
