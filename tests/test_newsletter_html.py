@@ -120,6 +120,30 @@ def test_render_pdf_stitches_vertically(tiny_pdf, tmp_path):
         assert im.size == (info["width"], info["height"])
 
 
+def test_render_pages_saves_one_png_per_page(tiny_pdf, tmp_path):
+    out_dir = tmp_path / "pages"
+    paths = nh.render_pages(str(tiny_pdf), str(out_dir), "13호_Coverpages_FINAL", dpi=200)
+    assert len(paths) == 3
+    for i, p in enumerate(paths, start=1):
+        assert p.name == f"13호_Coverpages_FINAL_{i}.png"
+        assert p.exists()
+    from PIL import Image
+
+    expected_w = round(1048 / 72 * 200)
+    expected_h = round(1757 / 72 * 200)
+    with Image.open(paths[0]) as im:
+        assert abs(im.size[0] - expected_w) <= 1
+        assert abs(im.size[1] - expected_h) <= 1
+        assert im.format == "PNG"
+
+
+def test_cli_pages(tiny_pdf, tmp_path):
+    out_dir = tmp_path / "out_pages"
+    nh.main(["pages", "--pdf", str(tiny_pdf), "--out-dir", str(out_dir), "--prefix", "test", "--dpi", "150"])
+    saved = sorted(out_dir.glob("test_*.png"))
+    assert len(saved) == 3
+
+
 # ── Task 4: preview + CLI ──────────────────────────────────────────────
 
 

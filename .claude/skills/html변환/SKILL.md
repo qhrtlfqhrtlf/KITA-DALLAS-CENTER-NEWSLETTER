@@ -57,6 +57,16 @@ python scripts/newsletter_html.py preview --config "<호 폴더>\<N호> issue.js
 1. 검수 통과 후, 확정 좌표가 템플릿과 달라졌으면 `scripts/templates/newsletter_map.json`에 반영 (다음 호 기준값)
 2. 사용자에게 안내: 완성된 `edm_YYYYMMDD.jpg`는 IT 운영센터 SR로 업로드 요청(파일명 명시), HTML은 발송 시스템에 사용
 
+### (예외) IT SR 요청이 여전히 필요한 경우 — 페이지별 PNG 생성
+`005. 인수인계\뉴스레터 HTML 변환 SR 요청 매뉴얼.docx` 기준, IT가 요구하는 SR 첨부 규격은
+스티칭 JPG 1장이 아니라 **페이지별 고화질 PNG 5장** (`..._Coverpages_FINAL_1.png` ~ `_5.png`, 200dpi)이다.
+자체 제작이 어려운 예외 상황에만 사용:
+```
+python scripts/newsletter_html.py pages --pdf "<커버 PDF 경로>" --out-dir "<호 폴더>" --prefix "<N호>_Coverpages_FINAL" --dpi 200
+```
+- SR 필수 첨부물: 가이드 PPT(`HYPERLINK_vol.20XX_XX(Final).pptx`, 링크 수정본) + 커버 PDF + 위 PNG 5장
+- 평소 워크플로우(1~6단계)에서는 이 명령이 필요 없다 — HTML을 자체 생성하므로 IT SR 자체를 생략하는 것이 기본 경로.
+
 ## 주의사항
 - 업무 자료 폴더(001~999)의 산출물은 git에 커밋하지 않는다 (템플릿 갱신만 커밋)
 - 유튜브 고정 링크의 후행 공백은 발송본 원본 그대로 유지한다

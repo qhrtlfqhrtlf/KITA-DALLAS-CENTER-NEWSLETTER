@@ -89,6 +89,28 @@ def render_pdf(pdf_path, width, out_path):
     return {"width": width, "height": total_h, "pages": len(images), "page_offsets": offsets}
 
 
+def render_pages(pdf_path, out_dir, prefix, dpi=200):
+    """커버 PDF 각 페이지를 고화질 PNG로 개별 저장 (IT SR 첨부 규격: ..._Coverpages_FINAL_N.png).
+
+    발송용 HTML은 render_pdf()의 스티칭 JPG 하나로 충분하지만, IT 운영센터에 SR을 넣어야
+    하는 예외 상황이나 원본 보관용으로 페이지별 고화질 PNG가 필요할 때 사용한다.
+    """
+    import fitz
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    doc = fitz.open(pdf_path)
+    zoom = dpi / 72
+    paths = []
+    for i, page in enumerate(doc, start=1):
+        pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom))
+        out_path = out_dir / f"{prefix}_{i}.png"
+        pix.save(str(out_path))
+        paths.append(out_path)
+    doc.close()
+    return paths
+
+
 def build_preview(config, image_src):
     """로컬 이미지 위에 클릭영역을 반투명 오버레이로 표시한 검수용 HTML.
 
@@ -130,6 +152,12 @@ def main(argv=None):
     p.add_argument("--width", type=int, default=700)
     p.add_argument("--out", required=True)
 
+    p = sub.add_parser("pages", help="커버 PDF → 페이지별 고화질 PNG (IT SR 첨부 규격)")
+    p.add_argument("--pdf", required=True)
+    p.add_argument("--out-dir", required=True)
+    p.add_argument("--prefix", required=True)
+    p.add_argument("--dpi", type=int, default=200)
+
     p = sub.add_parser("build", help="이슈 설정 JSON → 발송용 euc-kr HTML")
     p.add_argument("--config", required=True)
     p.add_argument("--out", required=True)
@@ -142,6 +170,9 @@ def main(argv=None):
     args = ap.parse_args(argv)
     if args.cmd == "render":
         print(json.dumps(render_pdf(args.pdf, args.width, args.out)))
+    elif args.cmd == "pages":
+        paths = render_pages(args.pdf, args.out_dir, args.prefix, args.dpi)
+        print(json.dumps([str(p) for p in paths]))
     elif args.cmd == "build":
         write_euckr(args.out, build_html(load_config(args.config)))
         print(f"saved: {args.out}")
