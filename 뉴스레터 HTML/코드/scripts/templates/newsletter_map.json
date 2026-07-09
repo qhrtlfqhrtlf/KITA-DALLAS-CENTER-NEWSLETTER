@@ -1,0 +1,24 @@
+{
+  "image_width": 700,
+  "image_url_pattern": "https://www.kita.net/mailclub/NeDM/edm_{date}.jpg",
+  "areas": [
+    {"id": "subscribe",       "label": "구독신청(헤더)",             "kind": "fixed", "coords": [392, 273, 482, 300],   "href": "https://lp.constantcontactpages.com/sl/SIIBJQl"},
+    {"id": "back-issues",     "label": "지난 호 다시보기(헤더)",      "kind": "fixed", "coords": [486, 274, 612, 299],   "href": "https://overseas.kita.net/dal/marketReport/marketReportList.do"},
+    {"id": "hot-issue",       "label": "경제통상 핫이슈 자세히보기",   "kind": "pdf",   "coords": [554, 1056, 660, 1088], "page": 1},
+    {"id": "econ-news",       "label": "경제뉴스 전체보기",           "kind": "pdf",   "coords": [503, 1517, 644, 1551], "page": 2},
+    {"id": "trade-news",      "label": "통상뉴스 전체보기",           "kind": "pdf",   "coords": [501, 1871, 645, 1909], "page": 2},
+    {"id": "region-news",     "label": "지역·산업뉴스 전체보기",      "kind": "pdf",   "coords": [472, 2208, 644, 2244], "page": 3},
+    {"id": "report",          "label": "보고서 톺아보기 자세히보기",   "kind": "pdf",   "coords": [553, 2949, 663, 2983], "page": 4},
+    {"id": "column",          "label": "전문가 칼럼(좌측 버튼)",      "kind": "pdf",   "coords": [55, 3388, 163, 3419],  "page": 5},
+    {"id": "indicators",      "label": "주요 경제지표 자세히보기",     "kind": "pdf",   "coords": [472, 3580, 638, 3610], "page": 7},
+    {"id": "events",          "label": "행사 알리미 자세히보기",       "kind": "pdf",   "coords": [535, 4275, 640, 4306], "page": 8},
+    {"id": "banner-gsos",     "label": "현지지원 서비스 배너(우)",     "kind": "fixed", "coords": [357, 4765, 646, 4917], "href": "https://kita.net/gsos/application/applicationList.do"},
+    {"id": "banner-insta",    "label": "인스타그램 배너(좌)",         "kind": "fixed", "coords": [72, 4766, 323, 4917],  "href": "https://www.instagram.com/kita_dallas_center/"},
+    {"id": "banner-commerce", "label": "통상 뉴스레터 배너(우)",       "kind": "fixed", "coords": [390, 5129, 619, 5284], "href": "https://kita.net/board/commerceNews/commerceNewsList.do"},
+    {"id": "banner-gmk",      "label": "굿모닝KITA 배너(좌)",         "kind": "fixed", "coords": [83, 5130, 316, 5284],  "href": "https://kita.net/board/goodMorningKita/goodMorningKitaList.do"},
+    {"id": "asoc-biz",        "label": "협회 사업 자세히보기",         "kind": "fixed", "coords": [556, 5395, 661, 5425], "href": "https://kita.net/asocBiz/asocBiz/asocBizOngoingList.do"},
+    {"id": "sns-youtube",     "label": "유튜브 아이콘",              "kind": "fixed", "coords": [593, 5756, 630, 5793], "href": "https://www.youtube.com/@KITA_Dallas_Center "},
+    {"id": "sns-linkedin",    "label": "링크드인 아이콘",             "kind": "fixed", "coords": [550, 5756, 587, 5793], "href": "https://www.linkedin.com/company/kita-dallas-center"},
+    {"id": "sns-instagram",   "label": "인스타그램 아이콘",           "kind": "fixed", "coords": [507, 5757, 543, 5792], "href": "https://www.instagram.com/kita_dallas_center/"}
+  ]
+}

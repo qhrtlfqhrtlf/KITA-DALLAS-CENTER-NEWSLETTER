@@ -37,3 +37,8 @@ Thumbs.db
 /*.md
 !/CLAUDE.md
 /pdf_extract*.txt
+
+# 인수인계 폴더 배포용 압축본 (폴더 내용과 중복, 공유용 임시 산출물)
+/뉴스레터 HTML.zip
+# 인수인계 폴더 안에 실수/의도로 들어간 실제 업무 테스트 자료 (대용량, 비코드)
+/뉴스레터 HTML/코드/.claude/skills/테스트 파일/
