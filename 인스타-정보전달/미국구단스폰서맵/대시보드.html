@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>미국 구단·스폰서 지도 — 텍사스 권역 대시보드</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Malgun Gothic","맑은 고딕",-apple-system,"Segoe UI",sans-serif;
+  background:#0c0a09;color:#e7e5e4;line-height:1.65;font-size:15px}
+.top{padding:20px 26px 16px;border-bottom:1px solid #292524}
+h1{margin:0;font-size:19px;letter-spacing:-.01em}
+.top .sub{color:#a8a29e;font-size:12.5px;margin-top:5px}
+.asof{display:inline-block;margin-top:9px;font-size:11.5px;color:#c4b5fd;
+  background:#2e1065;border:1px solid #4c1d95;border-radius:5px;padding:4px 10px}
+.layout{display:grid;grid-template-columns:minmax(340px,560px) minmax(0,1fr);
+  gap:0;align-items:start}
+/* 지도 */
+.mapwrap{padding:18px 22px 26px;border-right:1px solid #292524;position:sticky;top:0}
+svg{width:100%;height:auto;display:block;overflow:visible}
+.state{fill:#1c1917;stroke:#57534e;stroke-width:1.4}
+.pin{cursor:pointer}
+.pin circle.hit{fill:transparent}
+.pin circle.dot{fill:#f59e0b;stroke:#0c0a09;stroke-width:2.5;transition:r .12s}
+.pin text{fill:#e7e5e4;font-size:12px;font-weight:700;paint-order:stroke;
+  stroke:#0c0a09;stroke-width:3.5px;pointer-events:none}
+.pin text.cnt{fill:#0c0a09;stroke:none;font-size:11px;text-anchor:middle}
+.pin:hover circle.dot,.pin:focus-visible circle.dot{fill:#fbbf24}
+.pin.on circle.dot{fill:#fff}
+.pin:focus-visible{outline:none}
+.pin:focus-visible circle.dot{stroke:#fbbf24;stroke-width:3}
+.legend{margin-top:14px;display:flex;flex-wrap:wrap;gap:5px}
+.legend span{font-size:10.5px;padding:2px 7px;border-radius:3px;color:var(--c);
+  background:color-mix(in srgb,var(--c) 20%,#0c0a09);border:1px solid color-mix(in srgb,var(--c) 45%,#0c0a09)}
+.hint{font-size:11.5px;color:#78716c;margin-top:12px}
+/* 패널 */
+.panel{padding:18px 26px 60px;min-width:0}
+.ph{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  padding-bottom:10px;border-bottom:1px solid #292524;margin-bottom:4px}
+.ph h2{margin:0;font-size:17px}
+.ph .c{font-size:12px;color:#a8a29e}
+.ov{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:9px;margin:16px 0 20px}
+.ov div{background:#1c1917;border:1px solid #292524;border-radius:7px;padding:11px 13px}
+.ov b{display:block;font-size:20px}
+.ov span{font-size:11px;color:#a8a29e}
+.team{border:1px solid #292524;border-radius:9px;margin:14px 0;overflow:hidden;background:#141210}
+.th{padding:12px 16px;background:#1c1917;border-bottom:1px solid #292524}
+.th .r1{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.th .nm{font-size:15px;font-weight:700}
+.th .lg{font-size:10px;font-weight:700;background:#e7e5e4;color:#0c0a09;padding:2px 7px;border-radius:3px}
+.th .ex{font-size:10px;font-weight:700;background:#4c1d95;color:#ddd6fe;padding:2px 7px;border-radius:3px}
+.th .meta{font-size:12px;color:#a8a29e;margin-top:5px}
+.th .meta b{color:#e7e5e4}
+.nr{font-size:12px;color:#fbbf24;margin-top:4px}
+.tb{padding:3px 16px 14px}
+.sp{padding:11px 0;border-bottom:1px dashed #292524}
+.sp:last-of-type{border-bottom:none}
+.sp.end{opacity:.5}
+.sp .r1{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:5px}
+.sp .co{font-weight:700;font-size:14px}
+.chip{font-size:10.5px;padding:2px 7px;border-radius:3px;white-space:nowrap;color:var(--c);
+  background:color-mix(in srgb,var(--c) 20%,#0c0a09);border:1px solid color-mix(in srgb,var(--c) 45%,#0c0a09)}
+.gr{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.g1{background:#052e16;color:#86efac}
+.g2{background:#422006;color:#fcd34d}
+.g3{background:#292524;color:#a8a29e}
+.kr{font-size:10px;font-weight:700;background:#e7e5e4;color:#0c0a09;padding:2px 6px;border-radius:3px}
+.nt{font-size:10.5px;color:#a8a29e}
+.sp dl{display:grid;grid-template-columns:76px minmax(0,1fr);gap:2px 12px;margin:5px 0 0;font-size:12.5px}
+.sp dt{color:#78716c;font-size:10.5px;padding-top:3px}
+.sp dd{margin:0;color:#d6d3d1}
+.pt{background:#1c1917;border-left:3px solid #fbbf24;padding:9px 12px;margin-top:12px;font-size:12.5px}
+.pt b{display:block;font-size:10px;color:#78716c;letter-spacing:.05em;margin-bottom:2px}
+.fn{margin-top:9px;padding:9px 12px;background:#1c1917;border:1px solid #292524;border-radius:6px;font-size:11.5px}
+.fn>b{display:block;font-size:10px;color:#78716c;letter-spacing:.05em;margin-bottom:4px}
+.fn ol{margin:0;padding-left:19px}
+.fn li{margin:3px 0;color:#a8a29e}
+.fn .s{margin:6px 0 0;padding-top:5px;border-top:1px solid #292524;color:#78716c;font-size:10.5px}
+.foot{margin-top:26px;padding-top:14px;border-top:1px solid #292524;font-size:11.5px;color:#57534e}
+@media(max-width:900px){.layout{grid-template-columns:1fr}
+  .mapwrap{position:static;border-right:none;border-bottom:1px solid #292524}
+  .panel{padding:18px 20px 50px}}
+</style></head><body>
+<div class="top">
+<h1>미국 구단·스폰서 지도 — 텍사스 권역</h1>
+<p class="sub">도시 핀을 클릭하면 해당 도시 구단과 스폰서가 표시됩니다 · 한국무역협회 달러스지부</p>
+<p class="asof"><b>기준 시점</b> 2026년 8월 5일 확인 기준, 2026 시즌 현황</p>
+</div>
+<div class="layout">
+<div class="mapwrap">
+  <svg id="map" viewBox="0 0 560 520" role="group" aria-label="텍사스 권역 지도">
+    <path class="state" d="M165.3,56.8 L283.5,56.8 L283.5,132.2 L314.6,132.2 L324.3,145.4 L345.7,147.8 L363.2,157.9 L382.7,160.6 L396.3,164.1 L415.8,166.5 L433.3,163.7 L456.6,156.3 L478.8,167.2 L515.3,171.5 L515.3,231.8 L515.3,270.7 L523.5,286.3 L527.8,297.9 L534.0,307.6 L523.5,317.4 L487.7,334.9 L474.1,344.6 L458.5,356.3 L439.1,364.1 L419.6,371.8 L400.2,385.4 L392.4,402.9 L386.6,418.5 L382.7,441.8 L394.4,463.2 L369.1,463.2 L349.6,457.4 L330.2,451.6 L318.5,447.7 L310.7,432.1 L304.9,418.5 L291.3,406.8 L271.8,387.4 L258.2,373.8 L244.6,340.7 L229.0,319.3 L194.0,314.3 L174.6,329.0 L161.0,349.3 L135.7,336.8 L108.5,321.3 L92.9,297.9 L65.7,274.6 L38.4,255.1 L26.0,235.7 L26.0,231.8 L164.5,231.8 L164.5,56.8 Z"></path>
+    <g id="pins"></g>
+  </svg>
+  <div class="legend" id="legend"></div>
+  <p class="hint">기업 로고는 상표권 문제로 사용하지 않고 업종 색상 배지로 표시합니다.</p>
+</div>
+<div class="panel" id="panel"></div>
+</div>
+<script>
+const DATA = [{"구단명": "Dallas Cowboys", "리그": "NFL", "도시": "DFW", "창단연도": 1960, "연고지": "Arlington, TX (구단명은 Dallas)", "구단주": "Jerry Jones", "홈구장": "AT&T Stadium", "구장비고": "2026 FIFA 월드컵 기간(6/11~7/19) FIFA 클린 스타디움 규정에 따라 'Dallas Stadium'으로 임시 개칭, 9경기 개최", "스폰서": [{"기업명": "AT&T", "업종": "통신", "계약": {"내용": "2013년 구장 네이밍 라이츠 취득, 25년 계약", "금액": "연 1,700만~1,900만 달러 (총 4억 달러 이상 추정)", "공개등급": "언론 보도", "출처": "VentureBeat, Forbes (2013)"}, "노출영역": "구장 명칭 자체, 구장 외벽·게이트 사이니지, 모든 중계 방송에서의 구장명 언급, 티켓, 구단 앱", "하는일": "구장 내 통신 인프라(대형 스크린 연동·관중 대상 무선망) 제공. 단순 로고 노출이 아니라 경기장 IT 백본을 담당", "팬접점": "경기장에서 휴대폰이 터지는 그 통신망이 스폰서 본업"}, {"기업명": "LG Electronics", "업종": "기술·IT", "계약": {"내용": "2024년 다년 계약. 구단 공식 TV 파트너 겸 공식 디스플레이 파트너", "금액": "미공개", "공개등급": "공식 발표", "출처": "LG USA 보도자료 (2024)"}, "노출영역": "구장 내 디스플레이 설비, 라운지·스위트 TV, 구단 디지털 채널", "하는일": "구장 디스플레이·TV 설비 실제 공급", "팬접점": "라운지 TV가 곧 제품 전시장", "한국기업": true}, {"기업명": "Ford", "업종": "자동차", "계약": {"내용": "장기 공식 파트너", "금액": "미공개", "공개등급": "언론 보도", "출처": "SponsorUnited 댈러스 마켓 리포트"}, "노출영역": "구장 사이니지, 구단 콘텐츠 스폰서십", "하는일": "차량 전시, 지역 딜러 연계 프로모션", "팬접점": "픽업트럭 문화와 카우보이스 팬층이 겹치는 지점"}, {"기업명": "Fanatics", "업종": "유통·이커머스", "계약": {"내용": "10년 독점 머천다이즈 파트너십", "금액": "미공개", "공개등급": "공식 발표", "출처": "Fanatics Inc. 보도자료"}, "노출영역": "구장 내 프로숍, 구단 온라인 스토어", "하는일": "구단 상품 기획·생산·유통 전담 운영", "팬접점": "유니폼을 사는 그 매장·사이트 운영 주체"}, {"기업명": "Kohler", "업종": "건설·설비", "계약": {"내용": "다년 파트너십", "금액": "미공개", "공개등급": "공식 발표", "출처": "PR Newswire (2024)"}, "노출영역": "구장 시설 브랜딩", "하는일": "구장 위생·배관 설비 공급", "팬접점": "화장실 설비까지 스폰서가 붙는다는 사례"}], "생활밀접포인트": "월드컵 때 'Dallas Stadium'으로 이름이 사라진 이유가 곧 스폰서십의 정의 — FIFA 글로벌 파트너와 충돌하는 기업명은 대회 기간 지워진다", "유니폼패치": "해당 없음 (NFL은 4대 리그 중 유일하게 유니폼 광고 패치를 허용하지 않음)"}, {"구단명": "Dallas Mavericks", "리그": "NBA", "도시": "DFW", "창단연도": 1980, "연고지": "Dallas, TX", "구단주": "Patrick Dumont / Adelson 가문 (2023년 인수)", "홈구장": "American Airlines Center", "구장비고": "Dallas Stars와 공동 사용", "스폰서": [{"기업명": "American Airlines", "업종": "항공", "계약": {"내용": "1999년 네이밍 라이츠 취득, 30년 계약(2031년까지). Stars·Wings와 구장 공유", "금액": "총 1억 9,500만 달러 / 연 약 650만 달러 (구장 전체 계약)", "공개등급": "언론 보도", "출처": "InsideArenas, Dallas.Wiki"}, "노출영역": "구장 명칭, 외벽 사이니지, 중계 방송 구장명 언급, 티켓", "하는일": "본사가 포트워스 소재인 지역 기업. 명칭 노출 중심", "팬접점": "댈러스 공항의 그 항공사가 곧 아레나 이름"}, {"기업명": "JPMorganChase (Chase)", "업종": "금융", "계약": {"내용": "다년 계약. 2026-27 시즌부터 공식 유니폼 패치 파트너 겸 뱅킹 파트너. Chase의 첫 NBA 유니폼 패치 계약", "금액": "미공개", "공개등급": "공식 발표", "출처": "media.chase.com 보도자료 (2026)"}, "노출영역": "유니폼 4종 전체 좌측 상단 패치(팬 판매용 유니폼 포함), American Airlines Center 동측 전용 출입구, 아레나 전역 사이니지", "하는일": "Mavs Business Assist(지역 창업 지원 프로그램) 프리젠팅 스폰서, 노스텍사스 지역 농구 코트 신설, 카드 회원 전용 매점·굿즈 혜택 운영", "팬접점": "Chase 카드가 있으면 전용 게이트로 입장하고 매점 할인을 받음 — 스폰서십이 관중 동선을 바꾼 사례"}, {"기업명": "Chime", "업종": "금융", "계약": {"내용": "2020년부터 유니폼 패치 파트너, 2024년 10월 연장. 7년 만인 2026년 6월 종료", "금액": "미공개", "공개등급": "공식 발표", "출처": "Businesswire (2024), Yahoo Sports (2026)"}, "노출영역": "(종료) 유니폼 좌측 상단 패치, American Airlines Center 내 'Chime Lane'", "하는일": "(종료) 아레나 내 전용 공간 Chime Lane 운영", "팬접점": "직전 스폰서. 패치 색이 초록에서 파랑으로 바뀐 배경", "상태": "종료"}], "생활밀접포인트": "유니폼 왼쪽 가슴 패치는 임대료가 붙은 광고판 — 7년 쓰던 핀테크(Chime)에서 대형 은행(Chase)으로 넘어갔고, 이제 그 로고가 있으면 전용 출입구가 열린다", "유니폼패치": "Chase (2026-27 시즌부터). NBA는 4대 리그 중 가장 보수적으로 유니폼 패치 1개만 허용"}, {"구단명": "Dallas Stars", "리그": "NHL", "도시": "DFW", "창단연도": 1967, "연고지": "Dallas, TX (1993년 미네소타에서 이전)", "구단주": "Tom Gaglardi", "홈구장": "American Airlines Center", "구장비고": "Dallas Mavericks와 공동 사용. 구장 개선 비용 분담을 두고 두 구단이 상호 소송 중", "스폰서": [{"기업명": "American Airlines", "업종": "항공", "계약": {"내용": "구장 네이밍 라이츠 (Mavericks·Wings와 공유, 2031년까지)", "금액": "총 1억 9,500만 달러 / 연 약 650만 달러 (구장 전체 계약)", "공개등급": "언론 보도", "출처": "InsideArenas, Dallas.Wiki"}, "노출영역": "구장 명칭, 외벽 사이니지, 중계 방송", "하는일": "명칭 노출 중심", "팬접점": "홈구장 이름을 NBA 구단과 나눠 쓰는 구조"}, {"기업명": "Energy Transfer", "업종": "에너지", "계약": {"내용": "홈경기 헬멧 광고 스폰서", "금액": "미공개", "공개등급": "언론 보도", "출처": "Zoomph NHL 헬멧 스폰서 가이드 (2025/26)"}, "노출영역": "선수 헬멧 (홈경기)", "하는일": "본사 댈러스 소재 에너지 인프라 기업. 헬멧 노출 중심", "팬접점": "같은 기업이 Rangers 유니폼 패치도 달고 있음 — DFW 에너지 자본의 존재감"}, {"기업명": "Uber Eats", "업종": "기술·IT", "계약": {"내용": "원정경기 헬멧 광고 스폰서", "금액": "미공개", "공개등급": "언론 보도", "출처": "Zoomph (2025/26)"}, "노출영역": "선수 헬멧 (원정경기)", "하는일": "헬멧 노출 중심", "팬접점": "홈/원정에 따라 헬멧 광고주가 바뀐다 — NHL만의 판매 방식"}, {"기업명": "PNC Bank", "업종": "금융", "계약": {"내용": "장기 파트너십 갱신. 'PNC Plaza' 독점 네이밍 라이츠", "금액": "미공개", "공개등급": "공식 발표", "출처": "NHL.com 구단 보도자료"}, "노출영역": "구장 외부 광장(PNC Plaza) 명칭 및 사이니지", "하는일": "구장 앞 광장 공간 명칭 보유 — 구장 안이 아니라 밖을 사는 사례", "팬접점": "경기 전 모이는 그 광장 이름"}, {"기업명": "Paylocity", "업종": "기술·IT", "계약": {"내용": "2024년 10월 다년 계약", "금액": "미공개", "공개등급": "공식 발표", "출처": "Paylocity 보도자료"}, "노출영역": "구장 사이니지, 구단 디지털 채널", "하는일": "HR·급여 SaaS 기업. B2B 브랜드 인지 목적", "팬접점": "관중이 소비자가 아닌 B2B 스폰서도 스포츠에 들어온다"}], "생활밀접포인트": "NHL은 헬멧을 광고 지면으로 팔고, 홈경기와 원정경기 광고주를 따로 판다 (홈=Energy Transfer / 원정=Uber Eats)", "유니폼패치": "NHL은 어깨 패치 + 헬멧 광고 2개 지면을 판매 — NBA(패치 1개)보다 노출 슬롯이 많음"}, {"구단명": "Texas Rangers", "리그": "MLB", "도시": "DFW", "창단연도": 1961, "연고지": "Arlington, TX (구단명은 Texas)", "구단주": "Ray Davis", "홈구장": "Globe Life Field", "구장비고": "2020년 개장. 직전 구장 Globe Life Park도 같은 기업이 명명", "스폰서": [{"기업명": "Globe Life", "업종": "보험", "계약": {"내용": "2018년 신구장 네이밍 라이츠 25년 계약, 2048년까지 연장. 직전 구장 계약(2014년, 10년 5,000만 달러)을 대체", "금액": "연 1,100만 달러 / 총 2억 7,500만 달러", "공개등급": "언론 보도", "출처": "Sportico, MLB.com 보도자료"}, "노출영역": "구장 명칭, 외벽·내부 사이니지, 티켓, 중계 방송", "하는일": "명칭 노출 중심. MLB 내 두 번째로 큰 네이밍 라이츠 규모", "팬접점": "생명보험사가 구장 이름을 30년간 사는 이유 — 브랜드 신뢰도 확보"}, {"기업명": "Energy Transfer", "업종": "에너지", "계약": {"내용": "2024년 구단 첫 유니폼 패치 파트너, 2025년 9월 연장(2020년대 말까지). 2018년부터 구단과 관계", "금액": "미공개", "공개등급": "공식 발표", "출처": "MLB.com·Energy Transfer IR 보도자료"}, "노출영역": "유니폼 소매 패치 (MLB는 투수·타자 자세에서 잘 보이는 소매를 지면으로 선택)", "하는일": "Texas Rangers MLB Youth Academy 프로그램·운영 기금 후원 — 유소년 야구 시설의 실질적 운영 재원", "팬접점": "구단주와도 연결된 지역 에너지 기업. 유소년 아카데미가 실제 사업 내용", "비고": "구단주 연계 계약이라는 지적이 언론에서 제기됨 (SportBusiness)"}], "생활밀접포인트": "MLB 유니폼 광고는 소매에 붙는다 — 투수·타자 자세에서 카메라에 가장 잘 걸리는 위치를 계산한 결과", "유니폼패치": "Energy Transfer (2024년부터). MLB는 2023 시즌부터 유니폼·헬멧 광고 허용, 2026년 현재 30개 구단 중 29개가 패치 스폰서 보유(탬파베이만 미체결)"}, {"구단명": "FC Dallas", "리그": "MLS", "도시": "DFW", "창단연도": 1996, "연고지": "Frisco, TX (구단명은 Dallas)", "구단주": "Dan Hunt / Hunt Sports Group", "홈구장": "Toyota Stadium", "구장비고": "1억 8,200만 달러 규모 리노베이션 진행 중", "스폰서": [{"기업명": "Toyota", "업종": "자동차", "계약": {"내용": "2025년 10월 29일 다년 갱신. Toyota Stadium 및 Toyota Soccer Center 네이밍 라이츠 + 프리젠팅 스폰서", "금액": "미공개", "공개등급": "공식 발표", "출처": "FC Dallas 구단 발표, 프리스코시 보도자료"}, "노출영역": "구장 명칭, 인접 훈련시설(Toyota Soccer Center) 명칭, 구장 사이니지, 중계 방송", "하는일": "구장 + 유소년·훈련 시설 두 곳을 함께 명명. 북미 본사가 플레이노(DFW 소재)인 지역 기업", "팬접점": "토요타 북미 본사가 DFW에 있다는 사실이 이 계약의 배경", "비고": "일본 기업"}, {"기업명": "Children's Health", "업종": "헬스케어", "계약": {"내용": "2026 시즌 주 유니폼(DNA Kit) 전면 스폰서. 2026~2027 시즌 착용", "금액": "미공개", "공개등급": "공식 발표", "출처": "FC Dallas 구단 발표 (2026년 2월)"}, "노출영역": "주 유니폼 가슴 전면 (MLS 최대 노출 지면)", "하는일": "지역 소아 의료기관. 유소년 스포츠 안전·건강 연계", "팬접점": "지역 어린이 병원이 유니폼 가슴에 들어간 사례 — 소비재 브랜드가 아님"}, {"기업명": "UT Southwestern Medical Center", "업종": "헬스케어", "계약": {"내용": "보조 유니폼(Inferno Kit) 전면 스폰서 유지", "금액": "미공개", "공개등급": "공식 발표", "출처": "FC Dallas 구단 발표"}, "노출영역": "보조 유니폼 가슴 전면", "하는일": "지역 의료기관", "팬접점": "유니폼별로 전면 스폰서가 다르다 — MLS는 지면을 잘게 쪼개 판다"}], "생활밀접포인트": "MLS는 유니폼 한 장에 광고 지면이 최대 4개(가슴·좌측 소매·우측 소매·등 하단). 2026 올스타 브레이크 이후 등 하단 지면이 새로 열렸고 크기는 가슴 로고의 80%", "유니폼패치": "가슴: Children's Health(주)/UT Southwestern(보조). MLS는 4대 리그 대비 광고 지면이 가장 많음"}, {"구단명": "Dallas Wings", "리그": "WNBA", "도시": "DFW", "창단연도": 1998, "연고지": "Dallas, TX (2016년 털사에서 알링턴으로 이전, 2027 시즌 다운타운 댈러스로 이전)", "구단주": "Wings Ownership Group", "홈구장": "American Airlines Center", "구장비고": "홈구장 이전 과도기. 대표 표기는 2027 시즌 기준 American Airlines Center이며 Mavericks·Stars와 공용. 시즌별 연혁과 향후 계획은 아래 각주 참조", "기준시점예외": "2027 시즌 기준 (다른 12개 구단은 2026 시즌 기준)", "각주": ["2016~2026 시즌: College Park Center (UT 알링턴, 약 6,251석)", "2027 시즌: American Airlines Center (다운타운 댈러스, 약 20,000석)로 전 홈경기 이전. Mavericks·Stars와 공용이며 구단이 임시 조치로 명시 (2026-08-03 구단 발표)", "향후: Kay Bailey Hutchison 컨벤션센터 내 Dallas Memorial Auditorium (약 8,400~10,000석) 이전 예정. 건설 지연으로 완공 시점 미확정. 댈러스 시의회 15년 사용계약 (2024)", "2026 시즌 중 American Airlines Center 개최 3경기(인디애나 피버·시카고 스카이·골든스테이트 발키리스)는 정규 홈경기의 예외 사례"], "각주출처": "ESPN (2026-08-03), KERA News (2026-08-04), The IX Basketball (2026-02), 댈러스 시의회 15년 사용계약 (2024)", "스폰서": [{"기업명": "American Airlines", "업종": "항공", "계약": {"내용": "구장 네이밍 라이츠 (Mavericks·Stars와 공유, 2031년까지). Wings는 2027 시즌부터 이 구장을 홈으로 사용", "금액": "총 1억 9,500만 달러 / 연 약 650만 달러 (구장 전체 계약)", "공개등급": "언론 보도", "출처": "InsideArenas, Dallas.Wiki"}, "노출영역": "구장 명칭, 외벽 사이니지, 중계 방송", "하는일": "명칭 노출 중심. Wings 전용 계약이 아니라 구장 계약을 승계받는 구조", "팬접점": "WNBA 구단이 같은 구장을 쓰는 NBA·NHL 구단의 네이밍 라이츠를 그대로 물려받는다"}, {"기업명": "Dallas Mavericks (GEM)", "업종": "기타", "계약": {"내용": "2023년 다년 계약. NBA 구단이 소유주가 다른 WNBA 구단의 유니폼 스폰서가 된 최초 사례", "금액": "7자리 수(100만 달러 이상)", "공개등급": "언론 보도", "출처": "SportsPro, Mavs.com, CBS Sports"}, "노출영역": "선수 유니폼 복부 GEM 로고 (홈·원정 전 경기)", "하는일": "Girl Empowered Mavericks(2021년 개시) 프로그램 운영 — 노스텍사스 지역 여자 유소년 스포츠 연간 3,000명 이상 대상, Wings 선수·코치가 상시 프로그램에 직접 참여", "팬접점": "스폰서가 기업이 아니라 옆 동네 NBA 구단이고, 계약 내용이 지역 소녀 스포츠 프로그램 운영"}], "생활밀접포인트": "유니폼 스폰서가 기업이 아닌 같은 도시 NBA 구단인 유일한 사례. 스폰서십이 광고가 아니라 지역 프로그램 운영 계약으로 설계됐다", "유니폼패치": "GEM(Dallas Mavericks) — 복부 위치. WNBA는 NBA와 달리 복부를 주 지면으로 사용"}, {"구단명": "Houston Texans", "리그": "NFL", "도시": "휴스턴", "창단연도": 2002, "연고지": "Houston, TX", "구단주": "Janice McNair / McNair 가문", "홈구장": "NRG Stadium → Reliant Stadium (2026년 8월 개칭)", "구장비고": "2026년 8월 NRG Park 전체가 Reliant Park로 환원. 구단·구장 창립 25주년 시즌과 맞물림. 2026 FIFA 월드컵 기간에는 FIFA 클린 스타디움 규정으로 'Houston Stadium' 임시 사용", "스폰서": [{"기업명": "Reliant Energy (NRG Energy)", "업종": "에너지", "계약": {"내용": "2002년 Reliant Energy가 구장 및 주변 시설 30년 네이밍 라이츠 취득. 2009년 NRG Energy가 Reliant 소매부문을 인수해 2014년 NRG Stadium으로 개칭. 2026년 8월 다시 Reliant Stadium으로 환원(해리스카운티 스포츠·컨벤션공사 승인)", "금액": "2002년 30년 총 3억 달러 / NRG 명의 기간 연 1,000만 달러(2032년까지)", "공개등급": "언론 보도", "출처": "Reliant Energy 보도자료(2026-04-15), Businesswire, Stadiums of Pro Football"}, "노출영역": "구장 명칭, 주변 단지(Reliant Park) 전체 명칭, 외벽 사이니지, 중계 방송", "하는일": "전력 소매 사업자. 명칭 노출 중심", "팬접점": "휴스턴 지역 고객 설문에서 90%가 Reliant 이름 환원을 지지 — 소비자 여론이 네이밍 라이츠를 되돌린 드문 사례"}, {"기업명": "TDECU", "업종": "금융", "계약": {"내용": "구단 공식 신용조합(Official Credit Union)", "금액": "미공개", "공개등급": "공식 발표", "출처": "TDECU 구단 스폰서십 페이지"}, "노출영역": "구장 사이니지, 구단 채널", "하는일": "지역 신용조합. 팬 대상 금융상품 연계", "팬접점": "지역 밀착 금융기관이 대형 은행 대신 들어온 사례"}, {"기업명": "Whataburger", "업종": "식음료", "계약": {"내용": "구단 스폰서(모바일 마케팅 이니셔티브 참여)", "금액": "미공개", "공개등급": "언론 보도", "출처": "Marketing Dive"}, "노출영역": "구단 모바일·디지털 캠페인", "하는일": "팬 프로모션", "팬접점": "텍사스 로컬 버거 체인 — 텍사스 정체성 그 자체"}], "생활밀접포인트": "네이밍 라이츠는 기업 M&A를 따라 이름이 바뀐다. Reliant→NRG는 인수 때문이었고, 2026년 Reliant 환원은 지역 여론(설문 지지 90%)이 되돌린 결과", "유니폼패치": "해당 없음 (NFL)"}, {"구단명": "Houston Rockets", "리그": "NBA", "도시": "휴스턴", "창단연도": 1967, "연고지": "Houston, TX (1971년 샌디에이고에서 이전)", "구단주": "Tilman Fertitta", "홈구장": "Toyota Center", "구장비고": "2003년 개장", "스폰서": [{"기업명": "Toyota", "업종": "자동차", "계약": {"내용": "2003년 20년 1억 달러 네이밍 라이츠 계약(2023년 만료) → 5년 연장", "금액": "최초 20년 총 1억 달러 / 연장분 연 700만 달러 이상 추정", "공개등급": "언론 보도", "출처": "KHOU, Yahoo Sports"}, "노출영역": "구장 명칭, 외벽 사이니지, 티켓, 중계 방송", "하는일": "명칭 노출 중심", "팬접점": "텍사스에서 토요타가 두 구장(휴스턴 Toyota Center, 프리스코 Toyota Stadium) 이름을 동시에 보유", "비고": "일본 기업"}, {"기업명": "Memorial Hermann", "업종": "헬스케어", "계약": {"내용": "2024년부터 공식 유니폼 패치 파트너. NBA 최초의 병원·의료기관 유니폼 패치 계약. 기존 파트너십에서 패치로 격상", "금액": "미공개", "공개등급": "언론 보도", "출처": "SportBusiness, SportsLogos.Net"}, "노출영역": "유니폼 좌측 상단 패치 (팬 판매용 포함)", "하는일": "지역 의료 시스템. 선수 의료·스포츠의학 연계", "팬접점": "NBA 유니폼 광고에 병원이 들어온 첫 사례 — 소비재가 아니어도 지면을 산다"}, {"기업명": "Credit Karma Money", "업종": "금융", "계약": {"내용": "2021년 유니폼 패치 스폰서십 포함 파트너십. Memorial Hermann으로 교체됨", "금액": "미공개", "공개등급": "공식 발표", "출처": "Businesswire (2021)"}, "노출영역": "(종료) 유니폼 좌측 상단 패치", "하는일": "(종료)", "팬접점": "직전 패치 스폰서", "상태": "종료"}], "생활밀접포인트": "NBA 유니폼 패치 스폰서가 핀테크(Credit Karma)에서 지역 병원(Memorial Hermann)으로 바뀐 첫 사례 — 댈러스(Chime→Chase)와 같은 시기에 텍사스 두 구단이 모두 패치 주인을 바꿨다", "유니폼패치": "Memorial Hermann (2024년부터)"}, {"구단명": "Houston Astros", "리그": "MLB", "도시": "휴스턴", "창단연도": 1962, "연고지": "Houston, TX", "구단주": "Jim Crane", "홈구장": "Daikin Park", "구장비고": "2000년 개장. 구장명 변경 3회 — Enron Field(2000~2002, 엔론 회계부정 붕괴로 폐기) → Minute Maid Park(2002~2024) → Daikin Park(2025-01-01~)", "스폰서": [{"기업명": "Daikin (Daikin Comfort Technologies)", "업종": "건설·설비", "계약": {"내용": "2024년 11월 발표, 2025년 1월 1일 발효, 15년 계약(2039 시즌까지). 브랜드 보호를 위해 5년 단위 구간으로 설계", "금액": "공식 미공개 / 15년 총 최대 1억 4,000만 달러, 연 800만~900만 달러 추정", "공개등급": "언론 보도", "출처": "Pollstar, Sportico, Daikin·Astros 공동 보도자료(금액 비공개)"}, "노출영역": "구장 명칭, 외벽·내부 사이니지, 티켓, 중계 방송", "하는일": "에어컨·HVAC 제조사. 구장에서 북서쪽 약 40마일 지점에 북미 최대 HVAC 생산시설(Daikin Texas Technology Park) 보유 — 지역 고용주로서의 연결", "팬접점": "휴스턴 폭염에서 에어컨 회사가 돔구장 이름을 산 조합", "비고": "일본 기업"}, {"기업명": "Oxy (Occidental Petroleum)", "업종": "에너지", "계약": {"내용": "2023년 2월 발표, 7년 계약. 구단 최초 유니폼 패치 파트너", "금액": "미공개", "공개등급": "공식 발표", "출처": "MLB.com 보도자료, SportsPro, SportBusiness"}, "노출영역": "유니폼 소매 패치 — 정규시즌·포스트시즌 전 경기", "하는일": "휴스턴 본사 석유·가스 기업", "팬접점": "휴스턴 = 에너지 도시. 유니폼에 그대로 드러난다"}, {"기업명": "Minute Maid (Coca-Cola)", "업종": "식음료", "계약": {"내용": "2002~2024년 구장 네이밍 라이츠 보유. 네이밍 라이츠는 잃었으나 구단 파트너로 2029년까지 잔류", "금액": "미공개", "공개등급": "공식 발표", "출처": "Astros 발표 (2024-11)"}, "노출영역": "구장 내 사이니지·매점(명칭 제외)", "하는일": "음료 공급·프로모션", "팬접점": "구장 별칭 'Juice Box'가 여기서 나왔고, 이름이 바뀌어도 팬들은 계속 그렇게 부른다"}], "생활밀접포인트": "구장 이름의 역사가 그대로 미국 기업사 — 엔론(회계부정 붕괴) → 미닛메이드(코카콜라) → 다이킨(일본 에어컨). 이름이 바뀌어도 팬들은 여전히 'Juice Box'라 부른다", "유니폼패치": "Oxy (2023년부터, 소매)"}, {"구단명": "Houston Dynamo FC", "리그": "MLS", "도시": "휴스턴", "창단연도": 2005, "연고지": "Houston, TX", "구단주": "Ted Segal", "홈구장": "Shell Energy Stadium", "구장비고": "2012년 개장, 2023년 개칭. Houston Dash와 공동 사용. 다운타운 지구 최초의 축구 전용 구장", "스폰서": [{"기업명": "Shell Energy", "업종": "에너지", "계약": {"내용": "2023년 네이밍 라이츠 취득. Dynamo·Dash 공동 계약, 8년", "금액": "8년 총 4,000만 달러 / 연평균 500만 달러", "공개등급": "언론 보도", "출처": "SportBusiness, Shell·구단 공동 보도자료"}, "노출영역": "구장 명칭, 외벽 사이니지, 남녀 두 구단 중계 방송", "하는일": "전력·에너지 소매", "팬접점": "MLS와 NWSL 두 구단이 같은 구장·같은 스폰서를 공유"}, {"기업명": "MD Anderson Cancer Center (UT)", "업종": "헬스케어", "계약": {"내용": "2026 시즌 유니폼 전면 스폰서", "금액": "미공개", "공개등급": "공식 발표", "출처": "구단 발표, FOR SOCCER 2026 MLS 저지 스폰서 정리"}, "노출영역": "유니폼 가슴 전면 (MLS 최대 노출 지면)", "하는일": "세계적 암 전문 의료기관", "팬접점": "Dash(NWSL)와 전면 스폰서가 동일 — 한 기업이 남녀 두 구단 가슴을 함께 산다"}, {"기업명": "DUDE Wipes", "업종": "기타", "계약": {"내용": "구단 최초의 등 하단(back-of-jersey) 스폰서. 다년 계약. 2026년 MLS 전체에서 등 하단 스폰서를 보유한 4개 구단 중 하나", "금액": "미공개", "공개등급": "공식 발표", "출처": "구단 보도자료, FOX 26 Houston"}, "노출영역": "유니폼 등 하단 (2026 올스타 브레이크 이후 신설된 지면. 최대 가로 9인치×세로 4인치, 가슴 로고의 약 80% 크기)", "하는일": "물티슈 제조사. 브랜드 인지 중심", "팬접점": "MLS가 유니폼에 광고 자리를 하나 더 만들자 물티슈 회사가 제일 먼저 샀다"}], "생활밀접포인트": "2026년 MLS가 유니폼 등 하단을 새 광고 지면으로 열었고, Dynamo는 그 자리를 물티슈 브랜드에 팔았다. 광고 지면은 리그 규정이 열어주는 만큼 생긴다", "유니폼패치": "가슴 MD Anderson / 등 하단 DUDE Wipes. MLS는 가슴·좌소매·우소매·등하단 최대 4개 지면"}, {"구단명": "Houston Dash", "리그": "NWSL", "도시": "휴스턴", "창단연도": 2014, "연고지": "Houston, TX", "구단주": "Ted Segal (Dynamo와 동일)", "홈구장": "Shell Energy Stadium", "구장비고": "Houston Dynamo와 공동 사용", "스폰서": [{"기업명": "Shell Energy", "업종": "에너지", "계약": {"내용": "구장 네이밍 라이츠 (Dynamo와 공동 8년 계약)", "금액": "8년 총 4,000만 달러 / 연평균 500만 달러 (Dynamo와 합산)", "공개등급": "언론 보도", "출처": "SportBusiness"}, "노출영역": "구장 명칭, 사이니지, 중계 방송", "하는일": "전력·에너지 소매", "팬접점": "여자 구단 홈구장 네이밍 라이츠가 남자 구단과 한 계약에 묶여 있다"}, {"기업명": "MD Anderson Cancer Center (UT)", "업종": "헬스케어", "계약": {"내용": "2026 시즌 유니폼 전면 스폰서", "금액": "미공개", "공개등급": "공식 발표", "출처": "Blinkfire 2026 NWSL 키트 스폰서 정리, 구단 발표"}, "노출영역": "유니폼 가슴 전면", "하는일": "암 전문 의료기관", "팬접점": "Dynamo와 같은 기업이 남녀 두 구단 유니폼 가슴을 모두 보유"}], "생활밀접포인트": "구장·구단주·네이밍라이츠·유니폼 전면 스폰서를 모두 남자 구단(Dynamo)과 공유한다. 여자 리그 스폰서십이 아직 독립 상품으로 팔리지 않는 구조", "유니폼패치": "가슴 MD Anderson"}, {"구단명": "San Antonio Spurs", "리그": "NBA", "도시": "샌안토니오", "창단연도": 1967, "연고지": "San Antonio, TX", "구단주": "Peter J. Holt / Spurs Sports & Entertainment", "홈구장": "Frost Bank Center", "구장비고": "2002년 개장. 2023-24 시즌부터 개칭 (구 AT&T Center)", "스폰서": [{"기업명": "Frost Bank", "업종": "금융", "계약": {"내용": "2023년 8월 합의, 2023-24 시즌부터 네이밍 라이츠. AT&T를 대체. 구단 최장기 파트너로 1973년 Tom C. Frost가 프랜차이즈의 샌안토니오 이전 자금을 지원한 것이 시작. 이전에는 구단 최초의 유니폼 패치 스폰서였음. 신축 훈련시설 인근 상업지구 'The Rock at La Cantera' 네이밍 라이츠도 보유", "금액": "연 약 900만 달러", "공개등급": "언론 보도", "출처": "SportsPro, Sportico"}, "노출영역": "구장 명칭, 인근 상업지구 명칭, 외벽 사이니지, 중계 방송", "하는일": "텍사스 지역 은행. 1973년 구단 이전 자금 지원 이래 50년 관계", "팬접점": "구단이 이 도시에 존재하는 이유 자체가 이 은행의 50년 전 대출 — 스폰서십의 원형에 가까운 사례"}, {"기업명": "Ledger", "업종": "기술·IT", "계약": {"내용": "2025년 6월 발표, 다년 계약. 공식 유니폼 패치 파트너. Self Financial을 대체. 파리 소재 디지털 자산 보안 기업", "금액": "미공개", "공개등급": "공식 발표", "출처": "NBA.com 구단 발표, ESPN, MarketBeat"}, "노출영역": "유니폼 좌측 상단 패치 (2025년 7월 캘리포니아 클래식 서머리그부터 착용)", "하는일": "암호화폐 하드웨어 월렛·디지털 자산 보안", "팬접점": "프랑스 암호화폐 기업이 텍사스 구단 유니폼에 올라온 구도", "비고": "프랑스 기업"}, {"기업명": "Self Financial", "업종": "금융", "계약": {"내용": "2022-23 시즌부터 유니폼 패치 파트너(Frost를 대체). 2025년 패치 계약 종료, 팬 엔게이지먼트 등 다른 영역은 유지", "금액": "미공개", "공개등급": "공식 발표", "출처": "SportsPro, NBA.com"}, "노출영역": "(종료) 유니폼 좌측 상단 패치", "하는일": "신용 형성 지원 핀테크", "팬접점": "직전 패치 스폰서", "상태": "종료"}], "생활밀접포인트": "Frost Bank는 유니폼 패치 → 구장 이름으로 '승격'했고, 그 자리를 핀테크(Self) → 암호화폐 보안(Ledger)이 이어받았다. 한 기업의 스폰서십이 어떻게 단계를 올라가는지 보여주는 사례", "유니폼패치": "Ledger (2025년부터)"}, {"구단명": "Austin FC", "리그": "MLS", "도시": "오스틴", "창단연도": 2021, "연고지": "Austin, TX", "구단주": "Anthony Precourt / Two Oak Ventures", "홈구장": "Q2 Stadium", "구장비고": "2021년 개장, 2억 6,000만 달러 규모, 20,500석 이상", "스폰서": [{"기업명": "Q2 Holdings", "업종": "기술·IT", "계약": {"내용": "2021년 1월 발표, 다년 네이밍 라이츠. 오스틴 본사 기업", "금액": "미공개 (계약의 일부로 Q2·구단이 지역 비영리단체에 약 15만 달러 지원)", "공개등급": "공식 발표", "출처": "Forbes, Q2 Holdings 보도자료"}, "노출영역": "구장 명칭, 외벽 사이니지, 티켓, 중계 방송", "하는일": "금융기관용 디지털 뱅킹 SaaS 기업. 지역 비영리 지원 포함", "팬접점": "관중 대부분이 이름을 들어본 적 없는 B2B 기업이 구장 이름을 갖는 사례 — 노출 대상이 소비자가 아니라 금융권 고객"}, {"기업명": "YETI", "업종": "유통·이커머스", "계약": {"내용": "구단 공식 유니폼 전면 스폰서. 2020년 11월 창단 유니폼 공개 시부터. 오스틴 본사 기업", "금액": "미공개", "공개등급": "공식 발표", "출처": "구단 발표, Forbes"}, "노출영역": "유니폼 가슴 전면", "하는일": "쿨러·드링크웨어 제조사", "팬접점": "창단 유니폼이 MLS 단일 일자 판매 기록을 세움 — 오스틴 로컬 브랜드 조합의 효과"}, {"기업명": "Diageo North America", "업종": "식음료", "계약": {"내용": "구단 창단 파트너(Founding Partner)", "금액": "미공개", "공개등급": "공식 발표", "출처": "Diageo 보도자료"}, "노출영역": "구장 내 주류 브랜딩·라운지", "하는일": "주류 기업. 구장 음료 카테고리 운영", "팬접점": "경기장에서 마시는 술 브랜드가 곧 스폰서"}], "생활밀접포인트": "구장 이름(Q2)과 유니폼 가슴(YETI)이 모두 오스틴 본사 기업. 신생 구단이 로컬 브랜드로 정체성을 만든 가장 선명한 사례", "유니폼패치": "가슴 YETI"}];
+const MAP = {"이름": "텍사스 권역", "path": "M165.3,56.8 L283.5,56.8 L283.5,132.2 L314.6,132.2 L324.3,145.4 L345.7,147.8 L363.2,157.9 L382.7,160.6 L396.3,164.1 L415.8,166.5 L433.3,163.7 L456.6,156.3 L478.8,167.2 L515.3,171.5 L515.3,231.8 L515.3,270.7 L523.5,286.3 L527.8,297.9 L534.0,307.6 L523.5,317.4 L487.7,334.9 L474.1,344.6 L458.5,356.3 L439.1,364.1 L419.6,371.8 L400.2,385.4 L392.4,402.9 L386.6,418.5 L382.7,441.8 L394.4,463.2 L369.1,463.2 L349.6,457.4 L330.2,451.6 L318.5,447.7 L310.7,432.1 L304.9,418.5 L291.3,406.8 L271.8,387.4 L258.2,373.8 L244.6,340.7 L229.0,319.3 L194.0,314.3 L174.6,329.0 L161.0,349.3 L135.7,336.8 L108.5,321.3 L92.9,297.9 L65.7,274.6 L38.4,255.1 L26.0,235.7 L26.0,231.8 L164.5,231.8 L164.5,56.8 Z", "viewBox": "0 0 560 520", "핀": {"DFW": {"x": 404.1, "y": 201.5, "라벨": "댈러스-포트워스"}, "휴스턴": {"x": 463.6, "y": 318.9, "라벨": "휴스턴"}, "샌안토니오": {"x": 342.2, "y": 332.2, "라벨": "샌안토니오"}, "오스틴": {"x": 371.4, "y": 299.1, "라벨": "오스틴"}}, "도시순서": ["DFW", "휴스턴", "샌안토니오", "오스틴"]};
+const COLOR = {"에너지": "#ce8f5d", "기술·IT": "#9790e2", "헬스케어": "#61a5a0", "금융": "#7693e7", "자동차": "#d88080", "식음료": "#bc904d", "유통·이커머스": "#b689c2", "건설·설비": "#999893", "항공": "#66a4c6", "통신": "#b879f1", "보험": "#74a699", "기타": "#979797"};
+const ASOF = {"기준": "2026년 8월 5일 확인 기준, 2026 시즌 현황", "예외": "Dallas Wings는 홈구장 이전 과도기여서 2027 시즌(American Airlines Center)을 대표 표기로 사용한다. 구단별 예외는 해당 카드의 각주에 명시한다."};
+const LABEL = {"DFW": "댈러스-포트워스", "휴스턴": "휴스턴", "샌안토니오": "샌안토니오", "오스틴": "오스틴"};
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const active = t => t.스폰서.filter(s => s.상태 !== "종료");
+const byCity = c => DATA.filter(t => t.도시 === c);
+const chip = i => `<span class="chip" style="--c:${COLOR[i] || "#525252"}">${esc(i)}</span>`;
+const grade = g => `<span class="gr ${ {"공식 발표":"g1","언론 보도":"g2"}[g] || "g3" }">${esc(g)}</span>`;
+
+/* 네이밍 라이츠 판정은 보고서생성.py와 동일 기준(노출영역에 "구장 명칭")을 쓴다. */
+const namingRights = t => active(t).find(s => (s.노출영역 || "").includes("구장 명칭"));
+
+function legend() {
+  const used = new Set();
+  DATA.forEach(t => active(t).forEach(s => used.add(s.업종)));
+  document.getElementById("legend").innerHTML =
+    Object.keys(COLOR).filter(k => used.has(k))
+      .map(k => `<span style="--c:${COLOR[k]}">${esc(k)}</span>`).join("");
+}
+
+function pins() {
+  const g = document.getElementById("pins");
+  g.innerHTML = MAP.도시순서.map(c => {
+    const p = MAP.핀[c], n = byCity(c).length;
+    const r = 9 + n * 1.7;
+    const anchor = (c === "샌안토니오") ? "end" : "start";
+    const dx = anchor === "end" ? -(r + 6) : (r + 6);
+    return `<g class="pin" data-city="${esc(c)}" tabindex="0" role="button"
+      aria-label="${esc(p.라벨)} — 구단 ${n}개">
+      <circle class="hit" cx="${p.x}" cy="${p.y}" r="${r + 14}"></circle>
+      <circle class="dot" cx="${p.x}" cy="${p.y}" r="${r}"></circle>
+      <text class="cnt" x="${p.x}" y="${p.y + 4}">${n}</text>
+      <text x="${p.x + dx}" y="${p.y + 4}" text-anchor="${anchor}">${esc(p.라벨)}</text>
+    </g>`;
+  }).join("");
+  g.querySelectorAll(".pin").forEach(el => {
+    const go = () => select(el.dataset.city);
+    el.addEventListener("click", go);
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+    });
+  });
+}
+
+function sponsorHTML(s) {
+  const rows = [["계약", s.계약.내용], ["금액", s.계약.금액], ["노출 영역", s.노출영역],
+                ["하는 일", s.하는일], ["팬 접점", s.팬접점], ["출처", s.계약.출처]];
+  return `<div class="sp${s.상태 === "종료" ? " end" : ""}">
+    <div class="r1"><span class="co">${esc(s.기업명)}</span>${chip(s.업종)}${grade(s.계약.공개등급)}
+      ${s.한국기업 ? '<span class="kr">한국 기업</span>' : ""}
+      ${s.비고 ? `<span class="nt">${esc(s.비고)}</span>` : ""}
+      ${s.상태 === "종료" ? '<span class="gr g3">종료</span>' : ""}</div>
+    <dl>${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></div>`;
+}
+
+function teamHTML(t) {
+  const nr = namingRights(t);
+  return `<div class="team"><div class="th">
+    <div class="r1"><span class="nm">${esc(t.구단명)}</span><span class="lg">${esc(t.리그)}</span>
+      ${t.기준시점예외 ? `<span class="ex">기준 예외 · ${esc(t.기준시점예외)}</span>` : ""}</div>
+    <div class="meta">${esc(t.연고지)} · 창단 ${esc(t.창단연도)} · 구단주 ${esc(t.구단주)}</div>
+    <div class="meta">홈구장 <b>${esc(t.홈구장)}</b>${t.각주 ? ` (각주 1–${t.각주.length})` : ""}</div>
+    ${nr ? `<div class="nr">네이밍 라이츠 — ${esc(nr.기업명)} · ${esc(nr.계약.금액)}</div>`
+          : '<div class="nr" style="color:#78716c">네이밍 라이츠 없음</div>'}
+    <div class="meta">유니폼 광고 — ${esc(t.유니폼패치)}</div>
+    ${t.구장비고 ? `<div class="meta" style="color:#78716c">${esc(t.구장비고)}</div>` : ""}
+  </div><div class="tb">
+    ${t.스폰서.map(sponsorHTML).join("")}
+    <div class="pt"><b>생활 밀접 포인트</b>${esc(t.생활밀접포인트)}</div>
+    ${t.각주 ? `<div class="fn"><b>각주</b><ol>${t.각주.map(x => `<li>${esc(x)}</li>`).join("")}</ol>
+      ${t.각주출처 ? `<p class="s">출처 — ${esc(t.각주출처)}</p>` : ""}</div>` : ""}
+  </div></div>`;
+}
+
+function overview() {
+  const act = DATA.flatMap(active);
+  const stad = new Set(DATA.map(t => t.홈구장));
+  const named = new Set(DATA.filter(namingRights).map(t => t.홈구장));
+  const ind = {};
+  act.forEach(s => ind[s.업종] = (ind[s.업종] || 0) + 1);
+  const top = Object.entries(ind).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  document.getElementById("panel").innerHTML = `
+    <div class="ph"><h2>텍사스 권역 전체</h2><span class="c">지도에서 도시를 선택하세요</span></div>
+    <div class="ov">
+      <div><b>${DATA.length}</b><span>구단</span></div>
+      <div><b>${act.length}</b><span>활성 스폰서</span></div>
+      <div><b>${named.size}/${stad.size}</b><span>기업명 구장</span></div>
+      <div><b>${MAP.도시순서.length}</b><span>도시</span></div>
+    </div>
+    <p style="font-size:13px;color:#a8a29e">업종 상위 — ${top.map(([k, v]) => `${esc(k)} ${v}건`).join(" · ")}.
+    기업명이 없는 구장은 ${stad.size - named.size === 0 ? "없습니다" : (stad.size - named.size) + "곳입니다"}.</p>
+    <p style="font-size:12.5px;color:#78716c">${esc(ASOF.예외 || "")}</p>
+    ${MAP.도시순서.map(c => {
+      const ts = byCity(c);
+      return `<div class="team"><div class="th"><div class="r1">
+        <span class="nm">${esc(LABEL[c])}</span><span class="lg">${ts.length}개 구단</span></div>
+        <div class="meta">${ts.map(t => esc(t.구단명) + "(" + esc(t.리그) + ")").join(", ")}</div>
+      </div></div>`;
+    }).join("")}
+    <p class="foot">데이터 원본: 데이터.json · 이 페이지는 대시보드생성.py로 생성됩니다.</p>`;
+}
+
+function select(city) {
+  document.querySelectorAll(".pin").forEach(p => p.classList.toggle("on", p.dataset.city === city));
+  const ts = byCity(city);
+  const act = ts.flatMap(active);
+  document.getElementById("panel").innerHTML = `
+    <div class="ph"><h2>${esc(LABEL[city])}</h2>
+      <span class="c">구단 ${ts.length}개 · 활성 스폰서 ${act.length}건</span>
+      <button id="back" style="margin-left:auto;font:inherit;font-size:12px;cursor:pointer;
+        background:#1c1917;color:#e7e5e4;border:1px solid #44403c;border-radius:5px;padding:4px 11px">
+        전체 보기</button></div>
+    ${ts.map(teamHTML).join("")}
+    <p class="foot">데이터 원본: 데이터.json</p>`;
+  document.getElementById("back").addEventListener("click", () => {
+    document.querySelectorAll(".pin").forEach(p => p.classList.remove("on"));
+    overview();
+  });
+  document.getElementById("panel").scrollIntoView({block: "start", behavior: "smooth"});
+}
+
+legend(); pins(); overview();
+</script></body></html>
